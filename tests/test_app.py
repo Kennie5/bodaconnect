@@ -28,7 +28,7 @@ def test_request_ride_success(client):
         "destination": "Clock Tower",
         "customer": "Kennie"
     })
-    assert response.status_code == 999
+    assert response.status_code == 201
     data = response.get_json()
     assert data['status'] == 'Pending'
     assert data['pickup'] == 'Arusha Bus Stand'
