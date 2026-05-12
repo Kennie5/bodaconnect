@@ -1,0 +1,43 @@
+name: CI Pipeline — BodaConnect
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Pull the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Python
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      # Step 3: Install all dependencies
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest
+
+      # Step 4: Run tests — pipeline FAILS here if any test fails
+      - name: Run tests
+        run: pytest tests/ -v
+
+      # Step 5: Build Docker image and tag it
+      - name: Build Docker image
+        run: |
+          docker build -t bodaconnect:${{ github.sha }} .
+          docker tag bodaconnect:${{ github.sha }} bodaconnect:latest
+          echo "✅ Docker image built and tagged: bodaconnect:latest"
+
+      # Step 6: Confirm image exists
+      - name: Verify Docker image
+        run: docker images | grep bodaconnect
